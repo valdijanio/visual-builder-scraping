@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Builder Scraping</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>Visual Builder</h1>
+      <p class="subtitle">Scraping Template Builder</p>
+    </header>
+
+    <!-- Backend URL -->
+    <div class="section">
+      <label class="label">URL do Backend</label>
+      <input
+        type="url"
+        id="backendUrl"
+        class="input"
+        placeholder="http://localhost:8000/api"
+      >
+    </div>
+
+    <!-- Template Name -->
+    <div class="section">
+      <label class="label">Nome do Template</label>
+      <input
+        type="text"
+        id="templateName"
+        class="input"
+        placeholder="Ex: Preços Amazon"
+      >
+    </div>
+
+    <!-- Selection Controls -->
+    <div class="section">
+      <button id="toggleSelection" class="btn btn-primary">
+        Iniciar Seleção
+      </button>
+    </div>
+
+    <!-- Fields List -->
+    <div class="section">
+      <div class="section-header">
+        <label class="label">Campos Capturados</label>
+        <span id="fieldCount" class="badge">0</span>
+      </div>
+      <div id="fieldsList" class="fields-list">
+        <div class="empty-state">
+          Nenhum campo capturado ainda.<br>
+          Clique em "Iniciar Seleção" e selecione elementos na página.
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="testTemplate" class="btn btn-secondary" disabled>
+        Testar
+      </button>
+      <button id="saveTemplate" class="btn btn-primary" disabled>
+        Salvar Template
+      </button>
+    </div>
+
+    <!-- Test Results -->
+    <div id="testResults" class="test-results hidden">
+      <div class="section-header">
+        <label class="label">Resultado do Teste</label>
+        <button id="closeResults" class="btn-close">&times;</button>
+      </div>
+      <pre id="testResultsContent"></pre>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="statusMessage" class="status-message hidden"></div>
+
+    <!-- Field Name Modal -->
+    <div id="fieldNameModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Nome do Campo</h3>
+        <input
+          type="text"
+          id="fieldNameInput"
+          class="input"
+          placeholder="Ex: titulo, preco, descricao"
+        >
+        <div class="modal-info">
+          <strong>Selector:</strong>
+          <code id="modalSelector"></code>
+        </div>
+        <div class="modal-info">
+          <strong>Preview:</strong>
+          <span id="modalPreview"></span>
+        </div>
+        <div class="section">
+          <label class="label">Tipo</label>
+          <select id="fieldTypeSelect" class="input">
+            <option value="text">Texto</option>
+            <option value="html">HTML</option>
+            <option value="attribute">Atributo</option>
+            <option value="list">Lista</option>
+          </select>
+        </div>
+        <div id="attributeSection" class="section hidden">
+          <label class="label">Nome do Atributo</label>
+          <input
+            type="text"
+            id="attributeInput"
+            class="input"
+            placeholder="Ex: href, src, data-id"
+          >
+        </div>
+        <div class="modal-actions">
+          <button id="cancelField" class="btn btn-secondary">Cancelar</button>
+          <button id="confirmField" class="btn btn-primary">Adicionar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
