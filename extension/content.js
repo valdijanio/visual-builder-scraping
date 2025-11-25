@@ -11,6 +11,8 @@ if (window.__SCRAPER_INJECTED__) {
   let highlightedElement = null;
   let modeIndicator = null;
 
+  console.log('[Scraper] Content script loaded');
+
   // Generate CSS selector for an element
   function generateSelector(element) {
     // Priority 1: ID
@@ -76,9 +78,6 @@ if (window.__SCRAPER_INJECTED__) {
   function handleMouseOver(e) {
     if (!selecting) return;
 
-    e.stopPropagation();
-    e.preventDefault();
-
     // Remove previous highlight
     if (highlightedElement) {
       highlightedElement.classList.remove('scraper-highlight');
@@ -98,9 +97,14 @@ if (window.__SCRAPER_INJECTED__) {
     }
   }
 
-  // Handle click
+  // Handle click (using mousedown for reliability)
   function handleClick(e) {
-    if (!selecting) return;
+    console.log('[Scraper] Mousedown detected on:', e.target);
+
+    if (!selecting) {
+      console.log('[Scraper] Not in selecting mode, ignoring');
+      return;
+    }
 
     e.stopPropagation();
     e.preventDefault();
@@ -109,11 +113,15 @@ if (window.__SCRAPER_INJECTED__) {
     const selector = generateSelector(element);
     const preview = getPreviewText(element);
 
+    console.log('[Scraper] Selected element:', selector);
+    console.log('[Scraper] Preview:', preview);
+
     // Mark as selected
     element.classList.remove('scraper-highlight');
     element.classList.add('scraper-selected');
 
     // Send selector to popup
+    console.log('[Scraper] Sending message to popup...');
     chrome.runtime.sendMessage({
       type: 'ELEMENT_SELECTED',
       payload: {
@@ -122,6 +130,10 @@ if (window.__SCRAPER_INJECTED__) {
         tagName: element.tagName.toLowerCase(),
         url: window.location.href,
       },
+    }).then(() => {
+      console.log('[Scraper] Message sent successfully');
+    }).catch((err) => {
+      console.log('[Scraper] Error sending message:', err);
     });
 
     // Remove selected class after a delay
@@ -132,6 +144,7 @@ if (window.__SCRAPER_INJECTED__) {
 
   // Start selection mode
   function startSelection() {
+    console.log('[Scraper] Starting selection mode');
     selecting = true;
     document.body.classList.add('scraper-selecting');
 
@@ -141,14 +154,17 @@ if (window.__SCRAPER_INJECTED__) {
     modeIndicator.textContent = 'Modo de seleção ativo - clique em um elemento';
     document.body.appendChild(modeIndicator);
 
-    // Add event listeners
+    // Add event listeners - use mousedown instead of click for better capture
     document.addEventListener('mouseover', handleMouseOver, true);
     document.addEventListener('mouseout', handleMouseOut, true);
-    document.addEventListener('click', handleClick, true);
+    document.addEventListener('mousedown', handleClick, true);
+
+    console.log('[Scraper] Event listeners added');
   }
 
   // Stop selection mode
   function stopSelection() {
+    console.log('[Scraper] Stopping selection mode');
     selecting = false;
     document.body.classList.remove('scraper-selecting');
 
@@ -172,11 +188,15 @@ if (window.__SCRAPER_INJECTED__) {
     // Remove event listeners
     document.removeEventListener('mouseover', handleMouseOver, true);
     document.removeEventListener('mouseout', handleMouseOut, true);
-    document.removeEventListener('click', handleClick, true);
+    document.removeEventListener('mousedown', handleClick, true);
+
+    console.log('[Scraper] Event listeners removed');
   }
 
   // Listen for messages from popup/background
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log('[Scraper] Received message:', message.type);
+
     switch (message.type) {
       case 'START_SELECTION':
         startSelection();

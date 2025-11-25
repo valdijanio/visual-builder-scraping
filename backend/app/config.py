@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # Workers
     worker_count: int = 2
 
-    # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
+    # CORS - allow all origins for Chrome extension support
+    cors_origins: list[str] = ["*"]
 
     class Config:
         env_file = ".env"

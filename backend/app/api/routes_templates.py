@@ -17,6 +17,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/templates", tags=["templates"])
 
 
+def parse_jsonb(value):
+    """Parse JSONB value that might be returned as string."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return json.loads(value)
+    return value
+
+
 @router.get("", response_model=list[TemplateResponse])
 async def list_templates(active_only: bool = False):
     """List all templates."""
@@ -32,8 +41,8 @@ async def list_templates(active_only: bool = False):
             id=row["id"],
             name=row["name"],
             url_pattern=row["url_pattern"],
-            selectors=row["selectors"] or [],
-            config=row["config"] or {},
+            selectors=parse_jsonb(row["selectors"]) or [],
+            config=parse_jsonb(row["config"]) or {},
             active=row["active"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
@@ -64,8 +73,8 @@ async def create_template(data: TemplateCreate):
         id=row["id"],
         name=row["name"],
         url_pattern=row["url_pattern"],
-        selectors=row["selectors"] or [],
-        config=row["config"] or {},
+        selectors=parse_jsonb(row["selectors"]) or [],
+        config=parse_jsonb(row["config"]) or {},
         active=row["active"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
@@ -84,8 +93,8 @@ async def get_template(template_id: int):
         id=row["id"],
         name=row["name"],
         url_pattern=row["url_pattern"],
-        selectors=row["selectors"] or [],
-        config=row["config"] or {},
+        selectors=parse_jsonb(row["selectors"]) or [],
+        config=parse_jsonb(row["config"]) or {},
         active=row["active"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
@@ -151,8 +160,8 @@ async def update_template(template_id: int, data: TemplateUpdate):
         id=row["id"],
         name=row["name"],
         url_pattern=row["url_pattern"],
-        selectors=row["selectors"] or [],
-        config=row["config"] or {},
+        selectors=parse_jsonb(row["selectors"]) or [],
+        config=parse_jsonb(row["config"]) or {},
         active=row["active"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
@@ -180,7 +189,7 @@ async def test_template(template_id: int, data: TemplateTestRequest):
     try:
         result = await executor.execute(
             url=data.url,
-            selectors=template["selectors"] or [],
+            selectors=parse_jsonb(template["selectors"]) or [],
         )
         return TemplateTestResponse(
             url=data.url,

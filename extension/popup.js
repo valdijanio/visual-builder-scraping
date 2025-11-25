@@ -32,7 +32,7 @@ const confirmFieldBtn = document.getElementById('confirmField');
 // Initialize
 async function init() {
   // Load saved settings
-  const saved = await chrome.storage.local.get(['backendUrl', 'templateName', 'fields']);
+  const saved = await chrome.storage.local.get(['backendUrl', 'templateName', 'fields', 'pendingSelection']);
   if (saved.backendUrl) {
     backendUrl = saved.backendUrl;
     backendUrlInput.value = backendUrl;
@@ -44,6 +44,14 @@ async function init() {
   if (saved.fields) {
     fields = saved.fields;
     renderFields();
+  }
+
+  // Check for pending selection (element was selected while popup was closed)
+  if (saved.pendingSelection) {
+    console.log('[Popup] Found pending selection:', saved.pendingSelection);
+    showFieldNameModal(saved.pendingSelection.selector, saved.pendingSelection.preview);
+    // Clear the pending selection
+    await chrome.storage.local.remove('pendingSelection');
   }
 
   // Check current selection state
