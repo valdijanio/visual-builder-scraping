@@ -1,3 +1,4 @@
+import json
 import logging
 from contextlib import asynccontextmanager
 from typing import Any
@@ -15,12 +16,28 @@ class Database:
     def __init__(self):
         self.pool: asyncpg.Pool | None = None
 
+    async def _init_connection(self, conn):
+        """Initialize connection with JSON codec for JSONB fields."""
+        await conn.set_type_codec(
+            'jsonb',
+            encoder=json.dumps,
+            decoder=json.loads,
+            schema='pg_catalog'
+        )
+        await conn.set_type_codec(
+            'json',
+            encoder=json.dumps,
+            decoder=json.loads,
+            schema='pg_catalog'
+        )
+
     async def connect(self):
         """Create connection pool and initialize tables."""
         self.pool = await asyncpg.create_pool(
             settings.database_url,
             min_size=2,
             max_size=10,
+            init=self._init_connection,
         )
         logger.info("Database pool created")
         await self._create_tables()
