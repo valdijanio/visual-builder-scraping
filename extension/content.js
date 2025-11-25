@@ -1,4 +1,11 @@
 // Visual Builder Scraping - Content Script
+
+// Prevent multiple injections
+if (window.__SCRAPER_INJECTED__) {
+  console.log('[Scraper] Already injected, skipping...');
+} else {
+  window.__SCRAPER_INJECTED__ = true;
+
 (function () {
   let selecting = false;
   let highlightedElement = null;
@@ -199,3 +206,5 @@
     return true; // Keep message channel open for async response
   });
 })();
+
+} // End of injection guard

@@ -126,13 +126,40 @@ async function toggleSelection() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
 
+  // Check if content script is already injected
+  let scriptInjected = false;
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, { type: 'GET_STATUS' });
+    scriptInjected = response !== undefined;
+  } catch (e) {
+    scriptInjected = false;
+  }
+
+  // Only inject if not already present
+  if (!scriptInjected) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['content.js']
+      });
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: ['content.css']
+      });
+      // Wait for script to initialize
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (e) {
+      console.log('Script injection:', e.message);
+    }
+  }
+
   try {
     const messageType = selecting ? 'STOP_SELECTION' : 'START_SELECTION';
     await chrome.tabs.sendMessage(tab.id, { type: messageType });
     selecting = !selecting;
     updateSelectionButton();
   } catch (e) {
-    showStatus('Erro: recarregue a página e tente novamente', 'error');
+    showStatus('Erro: esta página não permite scripts de extensão', 'error');
   }
 }
 

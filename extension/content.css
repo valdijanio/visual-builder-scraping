@@ -13,11 +13,6 @@
   background-color: rgba(33, 150, 243, 0.1) !important;
 }
 
-/* Prevent pointer events on children when selecting */
-.scraper-selecting * {
-  pointer-events: none !important;
-}
-
 /* Selection mode indicator */
 .scraper-mode-indicator {
   position: fixed !important;
@@ -32,4 +27,9 @@
   font-weight: 500 !important;
   z-index: 2147483647 !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Change cursor when in selection mode */
+.scraper-selecting {
+  cursor: crosshair !important;
 }
